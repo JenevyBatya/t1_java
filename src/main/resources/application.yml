@@ -10,10 +10,11 @@ spring:
     enabled: true
     change-log: db/changelog/db.changelog-master.xml
 
+
 logging:
   level:
     ROOT: INFO
     ru.t1.java.demo.controller.ClientController: DEBUG
 
-t1:
-  scan-path: ru.t1.java.demo
+#t1:
+#  scan-path: ru.t1.java.demo

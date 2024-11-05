@@ -22,4 +22,12 @@ public class AccountController {
     public Account createAccount(@RequestBody Account account) {
         return accountService.save(account);
     }
+    @GetMapping("/{id}")
+    public Account getAccountById(@PathVariable Long id) {
+        return accountService.findById(id);
+    }
+    @DeleteMapping("/{id}")
+    public void deleteAccount(@PathVariable Long id) {
+        accountService.deleteById(id);
+    }
 }

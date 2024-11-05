@@ -9,19 +9,19 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 @Table(name = "transaction")
 public class Transaction extends AbstractPersistable<Long> {
 
-    @Column(name = "account_id")
+    @Column(name = "account_id", nullable = false)
     private Long accountId;
 
-    @Column(name = "amount")
+    @Column(name = "amount", nullable = false)
     private Double amount;
 
-    @Column(name = "time")
+    @Column(name = "time", nullable = false)
     private LocalDateTime time;
 
 }

@@ -14,10 +14,10 @@ import ru.t1.java.demo.model.enums.AccountType;
 @Table(name = "account")
 public class Account extends AbstractPersistable<Long> {
 
-    @Column(name = "type")
+    @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     private AccountType type;
 
-    @Column(name = "balance")
+    @Column(name = "balance", nullable = false)
     private Double balance;
 }

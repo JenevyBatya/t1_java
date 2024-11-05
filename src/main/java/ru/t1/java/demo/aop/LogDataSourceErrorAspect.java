@@ -8,7 +8,6 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 import ru.t1.java.demo.model.DataSourceErrorLog;
 import ru.t1.java.demo.service.DataSourceErrorLogService;
-import ru.t1.java.demo.service.impl.DataSourceErrorLogServiceImpl;
 
 @AllArgsConstructor
 @Aspect
