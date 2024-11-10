@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import ru.t1.java.demo.model.DataSourceErrorLog;
 import ru.t1.java.demo.service.DataSourceErrorLogService;
@@ -13,6 +14,7 @@ import ru.t1.java.demo.service.DataSourceErrorLogService;
 @Component
 public class LogDataSourceErrorAspect {
     private final DataSourceErrorLogService dataSourceErrorLogService;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     @AfterThrowing(pointcut = "@annotation(LogDataSourceError)", throwing = "e")
     public void handleException(JoinPoint joinPoint, Exception e) {
