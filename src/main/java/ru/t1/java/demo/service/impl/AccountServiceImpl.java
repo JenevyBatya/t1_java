@@ -49,4 +49,13 @@ public class AccountServiceImpl implements AccountService {
     public void deleteById(Long id) {
         accountRepository.deleteById(id);
     }
+
+    public List<AccountDto> saveAccounts(List<AccountDto> accounts) {
+        List<AccountDto> savedAccounts = new ArrayList<>();
+        for (AccountDto accountDto : accounts) {
+            accountRepository.save(AccountMapper.toEntity(accountDto));
+            savedAccounts.add(accountDto);
+        }
+        return savedAccounts;
+    }
 }

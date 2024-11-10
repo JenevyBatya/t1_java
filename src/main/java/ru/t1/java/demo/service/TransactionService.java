@@ -13,4 +13,5 @@ public interface TransactionService {
     TransactionDto findById(Long id);
 
     void deleteById(Long id);
+    List<TransactionDto> saveTransactions(List<TransactionDto> transactions);
 }

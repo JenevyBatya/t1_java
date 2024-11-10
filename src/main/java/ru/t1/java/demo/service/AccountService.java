@@ -13,4 +13,6 @@ public interface AccountService {
     AccountDto findById(Long id);
 
     void deleteById(Long id);
+
+    public List<AccountDto> saveAccounts(List<AccountDto> accounts);
 }
