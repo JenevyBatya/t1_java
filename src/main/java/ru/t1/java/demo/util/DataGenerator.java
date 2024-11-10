@@ -4,6 +4,7 @@ import com.github.javafaker.Faker;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.t1.java.demo.dto.AccountDto;
 import ru.t1.java.demo.model.Account;
 import ru.t1.java.demo.model.Transaction;
 import ru.t1.java.demo.model.enums.AccountType;
@@ -27,19 +28,19 @@ public class DataGenerator {
 
     @PostConstruct
     public void generateData() {
-        List<Account> accounts = new ArrayList<>();
+        List<AccountDto> accounts = new ArrayList<>();
         for (int i = 0; i <= 10; i++) {
-            Account account = Account.builder()
+            AccountDto dto = AccountDto.builder()
                     .type(random.nextBoolean() ? AccountType.CREDIT : AccountType.DEBIT)
                     .balance(faker.number().randomDouble(2, 100, 10000))
                     .build();
-            accounts.add(account);
-            accountService.save(account);
+            accounts.add(dto);
+            accountService.save(dto);
         }
-        for (Account account : accounts) {
+        for (AccountDto dto : accounts) {
             for (int j = 0; j <= 5; j++) {
                 Transaction transaction = Transaction.builder()
-                        .accountId(account.getId())
+                        .accountId(dto.getId())
                         .amount(faker.number().randomDouble(2, 1, 1000))
                         .time(faker.date().past(10, TimeUnit.DAYS).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
                         .build();
