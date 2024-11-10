@@ -5,6 +5,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.t1.java.demo.dto.AccountDto;
+import ru.t1.java.demo.dto.TransactionDto;
 import ru.t1.java.demo.model.Account;
 import ru.t1.java.demo.model.Transaction;
 import ru.t1.java.demo.model.enums.AccountType;
@@ -30,21 +31,21 @@ public class DataGenerator {
     public void generateData() {
         List<AccountDto> accounts = new ArrayList<>();
         for (int i = 0; i <= 10; i++) {
-            AccountDto dto = AccountDto.builder()
+            AccountDto accountDto = AccountDto.builder()
                     .type(random.nextBoolean() ? AccountType.CREDIT : AccountType.DEBIT)
                     .balance(faker.number().randomDouble(2, 100, 10000))
                     .build();
-            accounts.add(dto);
-            accountService.save(dto);
+            accounts.add(accountDto);
+            accountService.save(accountDto);
         }
         for (AccountDto dto : accounts) {
             for (int j = 0; j <= 5; j++) {
-                Transaction transaction = Transaction.builder()
+                TransactionDto transactionDto = TransactionDto.builder()
                         .accountId(dto.getId())
                         .amount(faker.number().randomDouble(2, 1, 1000))
                         .time(faker.date().past(10, TimeUnit.DAYS).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
                         .build();
-                transactionService.save(transaction);
+                transactionService.save(transactionDto);
             }
         }
 

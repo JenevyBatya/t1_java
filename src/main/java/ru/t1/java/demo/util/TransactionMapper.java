@@ -12,12 +12,12 @@ public class TransactionMapper {
                 .build();
     }
 
-    public static TransactionDto toDto(TransactionDto dto) {
+    public static TransactionDto toDto(Transaction entity) {
         return TransactionDto.builder()
-                .id(dto.getId())
-                .accountId(dto.getAccountId())
-                .amount(dto.getAmount())
-                .time(dto.getTime())
+                .id(entity.getId())
+                .accountId(entity.getAccountId())
+                .amount(entity.getAmount())
+                .time(entity.getTime())
                 .build();
     }
 }

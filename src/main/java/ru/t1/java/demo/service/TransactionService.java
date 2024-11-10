@@ -1,15 +1,16 @@
 package ru.t1.java.demo.service;
 
+import ru.t1.java.demo.dto.TransactionDto;
 import ru.t1.java.demo.model.Transaction;
 
 import java.util.List;
 
 public interface TransactionService {
-    List<Transaction> findAll();
+    List<TransactionDto> findAll();
 
-    Transaction save(Transaction transaction);
+    TransactionDto save(TransactionDto dto);
 
-    Transaction findById(Long id);
+    TransactionDto findById(Long id);
 
     void deleteById(Long id);
 }
