@@ -3,6 +3,7 @@ package ru.t1.java.demo.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.t1.java.demo.aop.LogDataSourceError;
+import ru.t1.java.demo.aop.Metric;
 import ru.t1.java.demo.dto.AccountDto;
 import ru.t1.java.demo.kafka.KafkaProducer;
 import ru.t1.java.demo.model.Account;
@@ -14,14 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@LogDataSourceError
 @RequiredArgsConstructor
 @Service
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final KafkaProducer kafkaProducer;
-
-    @LogDataSourceError
-    @Override
     public List<AccountDto> findAll() {
         List<Account> accounts = accountRepository.findAll();
 
@@ -29,39 +28,32 @@ public class AccountServiceImpl implements AccountService {
                 .map(AccountMapper::toDto)
                 .collect(Collectors.toList());
     }
-    @LogDataSourceError
-    @Override
+   
     public void registerAccount(AccountDto dto) {
         kafkaProducer.sendTo("t1_demo_accounts", dto);
     }
 
-    @Override
+   
     public void registerFromDataGenerator(AccountDto accountDto) {
 
-
     }
-
-    @LogDataSourceError
-    @Override
+    @Metric(1000)
     public AccountDto save(AccountDto dto) {
         Account account = accountRepository.save(AccountMapper.toEntity(dto));
 //        kafkaProducer.sendTo("t1_demo_accounts", dto);
         return AccountMapper.toDto(account);
     }
-
-    @LogDataSourceError
-    @Override
+   
     public AccountDto findById(Long id) {
         Account account = accountRepository.findById(id).orElse(null);
         return AccountMapper.toDto(account);
     }
 
-    @LogDataSourceError
-    @Override
+   
     public void deleteById(Long id) {
         accountRepository.deleteById(id);
     }
-
+    @Metric(1000)
     public List<AccountDto> saveAccounts(List<AccountDto> accounts) {
         List<AccountDto> savedAccounts = new ArrayList<>();
         for (AccountDto accountDto : accounts) {

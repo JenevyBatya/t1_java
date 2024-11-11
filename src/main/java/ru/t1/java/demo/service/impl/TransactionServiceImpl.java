@@ -3,6 +3,7 @@ package ru.t1.java.demo.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.t1.java.demo.aop.LogDataSourceError;
+import ru.t1.java.demo.aop.Metric;
 import ru.t1.java.demo.dto.AccountDto;
 import ru.t1.java.demo.dto.TransactionDto;
 import ru.t1.java.demo.kafka.KafkaProducer;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@LogDataSourceError
 @RequiredArgsConstructor
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -24,7 +26,6 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
     private final KafkaProducer kafkaProducer;
 
-    @LogDataSourceError
     @Override
     public List<TransactionDto> findAll() {
         List<Transaction> transactions = transactionRepository.findAll();
@@ -34,26 +35,25 @@ public class TransactionServiceImpl implements TransactionService {
                 .collect(Collectors.toList());
     }
 
-    @LogDataSourceError
+    @Metric(1000)
     @Override
     public TransactionDto save(TransactionDto dto) {
         Transaction transaction = transactionRepository.save(TransactionMapper.toEntity(dto));
         return TransactionMapper.toDto(transaction);
     }
 
-    @LogDataSourceError
     @Override
     public TransactionDto findById(Long id) {
         Transaction transaction = transactionRepository.findById(id).orElse(null);
         return TransactionMapper.toDto(transaction);
     }
 
-    @LogDataSourceError
     @Override
     public void deleteById(Long id) {
         transactionRepository.deleteById(id);
     }
 
+    @Metric(1000)
     @Override
     public List<TransactionDto> saveTransactions(List<TransactionDto> transactions) {
         List<TransactionDto> savedAccounts = new ArrayList<>();

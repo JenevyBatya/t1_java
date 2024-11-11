@@ -20,8 +20,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.util.backoff.FixedBackOff;
 import ru.t1.java.demo.dto.AccountDto;
+import ru.t1.java.demo.dto.DataSourceErrorLogDto;
+//import ru.t1.java.demo.dto.Message<DataSourceErrorLogDto>;
 import ru.t1.java.demo.dto.TransactionDto;
 import ru.t1.java.demo.kafka.MessageDeserializer;
+import org.springframework.messaging.Message;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -100,6 +103,24 @@ public class KafkaConfig {
         return factory;
     }
 
+    @Bean
+    @Qualifier("consumerDataSourceErrorLogFactory")
+    public ConsumerFactory<String, Message<DataSourceErrorLogDto>> consumerDataSourceErrorLogFactory() {
+
+        Map<String, Object> props = commonConsumerProps(groupIdAccount, "ru.t1.java.demo.dto.Message<DataSourceErrorLogDto>");
+        DefaultKafkaConsumerFactory<String, Message<DataSourceErrorLogDto>> factory = new DefaultKafkaConsumerFactory<String, Message<DataSourceErrorLogDto>>(props);
+        factory.setKeyDeserializer(new StringDeserializer());
+
+        return factory;
+    }
+
+    @Bean
+    ConcurrentKafkaListenerContainerFactory<String, Message<DataSourceErrorLogDto>> kafkaDataSourceErrorLogContainerFactory(@Qualifier("consumerDataSourceErrorLogFactory") ConsumerFactory<String, Message<DataSourceErrorLogDto>> consumerFactory) {
+        ConcurrentKafkaListenerContainerFactory<String, Message<DataSourceErrorLogDto>> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factoryBuilder(consumerFactory, factory);
+        return factory;
+    }
+
     private <T> void factoryBuilder(ConsumerFactory<String, T> consumerFactory, ConcurrentKafkaListenerContainerFactory<String, T> factory) {
         factory.setConsumerFactory(consumerFactory);
         factory.setBatchListener(true);
@@ -140,6 +161,11 @@ public class KafkaConfig {
         Map<String, Object> props = commonProducerProps();
         return new DefaultKafkaProducerFactory<>(props);
     }
+    @Bean
+    public ProducerFactory<String, Message<DataSourceErrorLogDto>> producerDataSourceErrorLogFactory() {
+        Map<String, Object> props = commonProducerProps();
+        return new DefaultKafkaProducerFactory<>(props);
+    }
 
     @Bean
     public KafkaTemplate<String, AccountDto> accountKafkaTemplate(@Qualifier("producerAccountFactory") ProducerFactory<String, AccountDto> producerFactory) {
@@ -148,6 +174,11 @@ public class KafkaConfig {
 
     @Bean
     public KafkaTemplate<String, TransactionDto> transactionKafkaTemplate(@Qualifier("producerTransactionFactory") ProducerFactory<String, TransactionDto> producerFactory) {
+        return new KafkaTemplate<>(producerFactory);
+    }
+
+    @Bean
+    public KafkaTemplate<String, Message<DataSourceErrorLogDto>> dataSourceErrorLogKafkaTemplate(@Qualifier("producerDataSourceErrorLogFactory") ProducerFactory<String, Message<DataSourceErrorLogDto>> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 
