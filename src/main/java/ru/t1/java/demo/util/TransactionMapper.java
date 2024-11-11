@@ -7,6 +7,7 @@ public class TransactionMapper {
 
     public static Transaction toEntity(TransactionDto dto) {
         return Transaction.builder()
+                .accountId(dto.getAccountId())
                 .amount(dto.getAmount())
                 .time(dto.getTime())
                 .build();

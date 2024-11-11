@@ -23,9 +23,9 @@ public class KafkaAccountConsumer {
 
     private final AccountService accountService;
 
-    @KafkaListener(id = "${t1.kafka.consumer.group-id}",
-            topics = "${t1.kafka.topic.t1_demo_accounts}",
-            containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(id = "${t1.kafka.consumer.group-id-account}",
+            topics = "t1_demo_accounts",
+            containerFactory = "kafkaAccountContainerFactory")
     public void listenToAccounts(@Payload List<AccountDto> messageList,
                                  Acknowledgment ack,
                                  @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,

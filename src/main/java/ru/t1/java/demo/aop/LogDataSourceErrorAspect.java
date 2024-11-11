@@ -14,7 +14,6 @@ import ru.t1.java.demo.service.DataSourceErrorLogService;
 @Component
 public class LogDataSourceErrorAspect {
     private final DataSourceErrorLogService dataSourceErrorLogService;
-    private final KafkaTemplate<String, String> kafkaTemplate;
 
     @AfterThrowing(pointcut = "@annotation(LogDataSourceError)", throwing = "e")
     public void handleException(JoinPoint joinPoint, Exception e) {

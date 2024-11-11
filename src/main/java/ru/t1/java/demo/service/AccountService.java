@@ -14,5 +14,7 @@ public interface AccountService {
 
     void deleteById(Long id);
 
-    public List<AccountDto> saveAccounts(List<AccountDto> accounts);
+     List<AccountDto> saveAccounts(List<AccountDto> accounts);
+     void registerAccount(AccountDto accountDto);
+     void registerFromDataGenerator(AccountDto accountDto);
 }

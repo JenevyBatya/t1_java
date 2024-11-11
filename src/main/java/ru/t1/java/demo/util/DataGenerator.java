@@ -35,8 +35,7 @@ public class DataGenerator {
                     .type(random.nextBoolean() ? AccountType.CREDIT : AccountType.DEBIT)
                     .balance(faker.number().randomDouble(2, 100, 10000))
                     .build();
-            accounts.add(accountDto);
-            accountService.save(accountDto);
+            accounts.add(accountService.save(accountDto));
         }
         for (AccountDto dto : accounts) {
             for (int j = 0; j <= 5; j++) {
@@ -45,7 +44,8 @@ public class DataGenerator {
                         .amount(faker.number().randomDouble(2, 1, 1000))
                         .time(faker.date().past(10, TimeUnit.DAYS).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
                         .build();
-                transactionService.save(transactionDto);
+                System.out.println();
+                transactionService.registerTransaction(transactionDto);
             }
         }
 

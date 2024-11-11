@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+import ru.t1.java.demo.dto.AccountDto;
+import ru.t1.java.demo.dto.TransactionDto;
 
 import java.util.UUID;
 
@@ -11,17 +13,45 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class KafkaProducer {
-    private final KafkaTemplate template;
 
-    public void sendTo(String topic, Object o) {
+
+    private final KafkaTemplate<String, AccountDto> templateAccount;
+    private final KafkaTemplate<String, TransactionDto> templateTransaction;
+
+    public void sendTo(String topic, Object payload) {
         try {
-            template.send(topic, UUID.randomUUID().toString(), o);
+            log.info("Sending message to topic {} with payload {}", topic, payload);
+
+            if (payload instanceof AccountDto) {
+                templateAccount.send(topic, UUID.randomUUID().toString(), (AccountDto) payload).get();
+            } else if (payload instanceof TransactionDto) {
+                templateTransaction.send(topic, UUID.randomUUID().toString(), (TransactionDto) payload).get();
+            } else {
+                throw new IllegalArgumentException("Unsupported payload type: " + payload.getClass().getName());
+            }
+
         } catch (Exception ex) {
-            log.error(ex.getMessage(), ex);
+            log.error("Failed to send message to topic {}: {}", topic, ex.getMessage(), ex);
         } finally {
-            template.flush();
+            if (payload instanceof AccountDto) {
+                templateAccount.flush();
+            } else if (payload instanceof TransactionDto) {
+                templateTransaction.flush();
+            }
         }
+
+        log.info("Message sent to topic {} with payload {}", topic, payload);
     }
+
+
+    private KafkaTemplate<String, ?> getTemplate(Object o) {
+        if (o instanceof AccountDto) {
+            return templateAccount;
+        } else if (o instanceof TransactionDto) {
+            return templateTransaction;
+        } else return null;
+    }
+
 
 }
 

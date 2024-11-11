@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import ru.t1.java.demo.aop.LogDataSourceError;
 import ru.t1.java.demo.dto.AccountDto;
 import ru.t1.java.demo.dto.TransactionDto;
+import ru.t1.java.demo.kafka.KafkaProducer;
+import ru.t1.java.demo.kafka.KafkaTransactionConsumer;
 import ru.t1.java.demo.model.Transaction;
 import ru.t1.java.demo.repository.TransactionRepository;
 import ru.t1.java.demo.service.TransactionService;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
+    private final KafkaProducer kafkaProducer;
 
     @LogDataSourceError
     @Override
@@ -59,5 +62,10 @@ public class TransactionServiceImpl implements TransactionService {
             savedAccounts.add(transactionDto);
         }
         return savedAccounts;
+    }
+
+    @Override
+    public void registerTransaction(TransactionDto transactionDto) {
+        kafkaProducer.sendTo("t1_demo_transactions", transactionDto);
     }
 }

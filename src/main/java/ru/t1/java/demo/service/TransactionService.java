@@ -14,4 +14,5 @@ public interface TransactionService {
 
     void deleteById(Long id);
     List<TransactionDto> saveTransactions(List<TransactionDto> transactions);
+    void registerTransaction(TransactionDto transactionDto);
 }
