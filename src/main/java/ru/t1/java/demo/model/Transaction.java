@@ -3,6 +3,7 @@ package ru.t1.java.demo.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.AbstractPersistable;
+import ru.t1.java.demo.model.enums.TransactionStatus;
 
 import java.time.LocalDateTime;
 
@@ -23,5 +24,8 @@ public class Transaction extends AbstractPersistable<Long> {
 
     @Column(name = "time", nullable = false)
     private LocalDateTime time;
+
+    @Column(name = "status")
+    private TransactionStatus status;
 
 }

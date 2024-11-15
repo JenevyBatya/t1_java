@@ -9,7 +9,10 @@ import ru.t1.java.demo.dto.TransactionDto;
 import ru.t1.java.demo.kafka.KafkaProducer;
 import ru.t1.java.demo.kafka.KafkaTransactionConsumer;
 import ru.t1.java.demo.model.Transaction;
+import ru.t1.java.demo.model.enums.AccountStatus;
+import ru.t1.java.demo.model.enums.TransactionStatus;
 import ru.t1.java.demo.repository.TransactionRepository;
+import ru.t1.java.demo.service.AccountService;
 import ru.t1.java.demo.service.TransactionService;
 import ru.t1.java.demo.util.AccountMapper;
 import ru.t1.java.demo.util.TransactionMapper;
@@ -25,6 +28,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final KafkaProducer kafkaProducer;
+    private final AccountService accountService;
 
     @Override
     public List<TransactionDto> findAll() {
@@ -58,8 +62,13 @@ public class TransactionServiceImpl implements TransactionService {
     public List<TransactionDto> saveTransactions(List<TransactionDto> transactions) {
         List<TransactionDto> savedAccounts = new ArrayList<>();
         for (TransactionDto transactionDto : transactions) {
-            transactionRepository.save(TransactionMapper.toEntity(transactionDto));
-            savedAccounts.add(transactionDto);
+            AccountDto accountDto = accountService.findById(transactionDto.getAccountId());
+            if (accountDto.getStatus().equals(AccountStatus.OPEN)) {
+                transactionDto.setStatus(TransactionStatus.REQUESTED);
+                accountService.updateBalance(transactionDto, accountDto);
+                savedAccounts.add(save(transactionDto));
+            }
+
         }
         return savedAccounts;
     }

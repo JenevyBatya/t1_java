@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.t1.java.demo.aop.LogDataSourceError;
 import ru.t1.java.demo.aop.Metric;
 import ru.t1.java.demo.dto.AccountDto;
+import ru.t1.java.demo.dto.TransactionDto;
 import ru.t1.java.demo.kafka.KafkaProducer;
 import ru.t1.java.demo.model.Account;
 import ru.t1.java.demo.repository.AccountRepository;
@@ -61,5 +62,9 @@ public class AccountServiceImpl implements AccountService {
             savedAccounts.add(accountDto);
         }
         return savedAccounts;
+    }
+    public AccountDto updateBalance(TransactionDto transactionDto, AccountDto accountDto){
+        accountDto.setBalance(accountDto.getBalance() + transactionDto.getAmount());
+        return  save(accountDto);
     }
 }
