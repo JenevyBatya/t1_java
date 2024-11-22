@@ -60,22 +60,23 @@ public class KafkaConfig {
         props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, maxPartitionFetchBytes);
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, maxPollIntervalsMs);
-//        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, Boolean.FALSE);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, MessageDeserializer.class.getName());
         props.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, MessageDeserializer.class);
         return props;
     }
 
+    private <T> ConsumerFactory<String, T> commonConsumerFactory(Map<String, Object> props) {
+        DefaultKafkaConsumerFactory<String, T> factory = new DefaultKafkaConsumerFactory<>(props);
+        factory.setKeyDeserializer(new StringDeserializer());
+        return factory;
+    }
+
     @Bean
     @Qualifier("consumerAccountFactory")
     public ConsumerFactory<String, AccountDto> consumerAccountFactory() {
-
         Map<String, Object> props = commonConsumerProps(groupIdAccount, "ru.t1.java.demo.dto.AccountDto");
-        DefaultKafkaConsumerFactory<String, AccountDto> factory = new DefaultKafkaConsumerFactory<String, AccountDto>(props);
-        factory.setKeyDeserializer(new StringDeserializer());
-
-        return factory;
+        return commonConsumerFactory(props);
     }
 
     @Bean
@@ -89,11 +90,7 @@ public class KafkaConfig {
     @Qualifier("consumerTransactionFactory")
     public ConsumerFactory<String, TransactionDto> consumerTransactionFactory() {
         Map<String, Object> props = commonConsumerProps(groupIdTransaction, "ru.t1.java.demo.dto.TransactionDto");
-
-        DefaultKafkaConsumerFactory<String, TransactionDto> factory = new DefaultKafkaConsumerFactory<String, TransactionDto>(props);
-        factory.setKeyDeserializer(new StringDeserializer());
-
-        return factory;
+        return commonConsumerFactory(props);
     }
 
     @Bean
@@ -106,12 +103,8 @@ public class KafkaConfig {
     @Bean
     @Qualifier("consumerDataSourceErrorLogFactory")
     public ConsumerFactory<String, Message<DataSourceErrorLogDto>> consumerDataSourceErrorLogFactory() {
-
         Map<String, Object> props = commonConsumerProps(groupIdAccount, "ru.t1.java.demo.dto.Message<DataSourceErrorLogDto>");
-        DefaultKafkaConsumerFactory<String, Message<DataSourceErrorLogDto>> factory = new DefaultKafkaConsumerFactory<String, Message<DataSourceErrorLogDto>>(props);
-        factory.setKeyDeserializer(new StringDeserializer());
-
-        return factory;
+        return commonConsumerFactory(props);
     }
 
     @Bean
@@ -140,7 +133,7 @@ public class KafkaConfig {
         return handler;
     }
 
-    private Map<String, Object> commonProducerProps(){
+    private Map<String, Object> commonProducerProps() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, servers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -150,6 +143,7 @@ public class KafkaConfig {
         props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, false);
         return props;
     }
+
     @Bean
     public ProducerFactory<String, AccountDto> producerAccountFactory() {
         Map<String, Object> props = commonProducerProps();
@@ -161,6 +155,7 @@ public class KafkaConfig {
         Map<String, Object> props = commonProducerProps();
         return new DefaultKafkaProducerFactory<>(props);
     }
+
     @Bean
     public ProducerFactory<String, Message<DataSourceErrorLogDto>> producerDataSourceErrorLogFactory() {
         Map<String, Object> props = commonProducerProps();

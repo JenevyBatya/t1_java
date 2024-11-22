@@ -20,6 +20,7 @@ import java.io.Serializable;
 public class AccountDto implements Serializable {
     private Long id;
 
+
     @JsonProperty("type")
     private AccountType type;
 
@@ -30,6 +31,8 @@ public class AccountDto implements Serializable {
     private AccountStatus status;
 
     @JsonProperty("frozen_amount")
-    private long frozenAmount;
+    private Double frozenAmount;
 
+    @JsonProperty("client_id")
+    private Long clientId;
 }

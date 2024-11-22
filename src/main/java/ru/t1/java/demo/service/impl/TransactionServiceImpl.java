@@ -6,6 +6,7 @@ import ru.t1.java.demo.aop.LogDataSourceError;
 import ru.t1.java.demo.aop.Metric;
 import ru.t1.java.demo.dto.AccountDto;
 import ru.t1.java.demo.dto.TransactionDto;
+import ru.t1.java.demo.dto.TransactionInfoDto;
 import ru.t1.java.demo.kafka.KafkaProducer;
 import ru.t1.java.demo.kafka.KafkaTransactionConsumer;
 import ru.t1.java.demo.model.Transaction;
@@ -67,6 +68,8 @@ public class TransactionServiceImpl implements TransactionService {
                 transactionDto.setStatus(TransactionStatus.REQUESTED);
                 accountService.updateBalance(transactionDto, accountDto);
                 savedAccounts.add(save(transactionDto));
+
+                sendTransactionalInfo(accountDto, transactionDto);
             }
 
         }
@@ -76,5 +79,17 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void registerTransaction(TransactionDto transactionDto) {
         kafkaProducer.sendTo("t1_demo_transactions", transactionDto);
+    }
+
+    private void sendTransactionalInfo(AccountDto accountDto, TransactionDto transactionDto){
+        TransactionInfoDto infoDto = new TransactionInfoDto(
+                accountDto.getClientId(),
+                accountDto.getId(),
+                transactionDto.getId(),
+                transactionDto.getTime(),
+                transactionDto.getAmount(),
+                accountDto.getBalance());
+        kafkaProducer.sendTo("t1_demo_transaction_accept", infoDto);
+
     }
 }

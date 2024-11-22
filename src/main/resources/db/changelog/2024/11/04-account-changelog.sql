@@ -9,5 +9,7 @@ CREATE TABLE account
     id         BIGINT NOT NULL DEFAULT NEXTVAL('account_seq'),
     type VARCHAR(255),
     balance    DECIMAL(15, 2),
+    frozen_amount    DECIMAL(15, 2),
+    status VARCHAR(255),
     CONSTRAINT pk_account PRIMARY KEY (id)
 );

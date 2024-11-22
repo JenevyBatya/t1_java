@@ -144,6 +144,7 @@
                 <artifactId>liquibase-maven-plugin</artifactId>
                 <version>4.29.2</version>
                 <configuration>
+                    <changeLogFile>src/main/resources/db/changelog/db.changelog-master.xml</changeLogFile> <!-- Укажите путь к вашему файлу changelog -->
                     <url>jdbc:postgresql://localhost:5432/t1_demo</url>
                     <username>postgres</username>
                     <password>0000</password>

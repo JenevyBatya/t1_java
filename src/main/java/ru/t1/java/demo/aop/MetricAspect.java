@@ -29,7 +29,7 @@ public class MetricAspect {
     @Around("@annotation(metric)")
     public Object measureExecutionTime(ProceedingJoinPoint joinPoint, Metric metric) throws Throwable {
         long startTime = System.currentTimeMillis();
-
+        //TODO: разобраться при возможном исключении
         Object result = joinPoint.proceed();
 
         long executionTime = System.currentTimeMillis() - startTime;

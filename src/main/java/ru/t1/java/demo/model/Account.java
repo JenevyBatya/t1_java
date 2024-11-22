@@ -19,11 +19,14 @@ public class Account extends AbstractPersistable<Long> {
     @Enumerated(EnumType.STRING)
     private AccountType type;
 
+    @Column(name = "client_id", nullable = false)
+    private Long clientId;
+
     @Column(name = "balance", nullable = false)
     private Double balance;
 
     @Column(name = "frozen_amount")
-    private long frozenAmount;
+    private Double frozenAmount;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)

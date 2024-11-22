@@ -9,6 +9,8 @@ public class AccountMapper {
         return Account.builder()
                 .type(dto.getType())
                 .balance(dto.getBalance())
+                .status(dto.getStatus())
+                .frozenAmount(dto.getFrozenAmount())
                 .build();
     }
 
@@ -17,6 +19,8 @@ public class AccountMapper {
                 .id(entity.getId())
                 .type(entity.getType())
                 .balance(entity.getBalance())
+                .status(entity.getStatus())
+                .frozenAmount(entity.getFrozenAmount())
                 .build();
     }
 }

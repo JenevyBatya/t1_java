@@ -6,6 +6,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import ru.t1.java.demo.dto.AccountDto;
 import ru.t1.java.demo.dto.TransactionDto;
+import ru.t1.java.demo.util.ParserJson;
 
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ public class KafkaProducer {
 
     private final KafkaTemplate<String, AccountDto> templateAccount;
     private final KafkaTemplate<String, TransactionDto> templateTransaction;
+    private final KafkaTemplate<String, String> template;
 
     public void sendTo(String topic, Object payload) {
         try {
@@ -27,7 +29,8 @@ public class KafkaProducer {
             } else if (payload instanceof TransactionDto) {
                 templateTransaction.send(topic, UUID.randomUUID().toString(), (TransactionDto) payload).get();
             } else {
-                throw new IllegalArgumentException("Unsupported payload type: " + payload.getClass().getName());
+                template.send(topic, UUID.randomUUID().toString(), ParserJson.toJson(payload));
+//                throw new IllegalArgumentException("Unsupported payload type: " + payload.getClass().getName());
             }
 
         } catch (Exception ex) {
