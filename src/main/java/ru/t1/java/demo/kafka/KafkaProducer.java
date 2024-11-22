@@ -40,6 +40,8 @@ public class KafkaProducer {
                 templateAccount.flush();
             } else if (payload instanceof TransactionDto) {
                 templateTransaction.flush();
+            }else {
+                template.flush();
             }
         }
 

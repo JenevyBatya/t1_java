@@ -8,14 +8,12 @@ import ru.t1.java.demo.dto.AccountDto;
 import ru.t1.java.demo.dto.TransactionDto;
 import ru.t1.java.demo.dto.TransactionInfoDto;
 import ru.t1.java.demo.kafka.KafkaProducer;
-import ru.t1.java.demo.kafka.KafkaTransactionConsumer;
 import ru.t1.java.demo.model.Transaction;
 import ru.t1.java.demo.model.enums.AccountStatus;
 import ru.t1.java.demo.model.enums.TransactionStatus;
 import ru.t1.java.demo.repository.TransactionRepository;
 import ru.t1.java.demo.service.AccountService;
 import ru.t1.java.demo.service.TransactionService;
-import ru.t1.java.demo.util.AccountMapper;
 import ru.t1.java.demo.util.TransactionMapper;
 
 import java.util.ArrayList;
@@ -58,30 +56,48 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.deleteById(id);
     }
 
-    @Metric(1000)
+    //приямое сохранение несколькольких
     @Override
     public List<TransactionDto> saveTransactions(List<TransactionDto> transactions) {
-        List<TransactionDto> savedAccounts = new ArrayList<>();
+        List<TransactionDto> transactionDtos = new ArrayList<>();
+        for (TransactionDto transactionDto : transactions) {
+            transactionDtos.add(save(transactionDto));
+        }
+        return transactionDtos;
+    }
+
+    //    @Override
+//    public void registerTransaction(TransactionDto transactionDto) {
+//
+//    }
+    //проверка для консьюмера и отправка по статусу транзакции
+    @Metric(1000)
+    @Override
+    public void registerTransaction(List<TransactionDto> transactions) {
         for (TransactionDto transactionDto : transactions) {
             AccountDto accountDto = accountService.findById(transactionDto.getAccountId());
             if (accountDto.getStatus().equals(AccountStatus.OPEN)) {
                 transactionDto.setStatus(TransactionStatus.REQUESTED);
                 accountService.updateBalance(transactionDto, accountDto);
-                savedAccounts.add(save(transactionDto));
-
                 sendTransactionalInfo(accountDto, transactionDto);
-            }
+//            }
 
+            }
+//        return savedAccounts;
         }
-        return savedAccounts;
     }
 
     @Override
-    public void registerTransaction(TransactionDto transactionDto) {
+    public void sendTransaction(TransactionDto transactionDto) {
         kafkaProducer.sendTo("t1_demo_transactions", transactionDto);
     }
 
-    private void sendTransactionalInfo(AccountDto accountDto, TransactionDto transactionDto){
+//    @Override
+//    public void registerTransaction(TransactionDto transactionDto) {
+////        kafkaProducer.sendTo("t1_demo_transactions", transactionDto);
+//    }
+
+    private void sendTransactionalInfo(AccountDto accountDto, TransactionDto transactionDto) {
         TransactionInfoDto infoDto = new TransactionInfoDto(
                 accountDto.getClientId(),
                 accountDto.getId(),

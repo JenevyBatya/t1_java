@@ -161,6 +161,11 @@ public class KafkaConfig {
         Map<String, Object> props = commonProducerProps();
         return new DefaultKafkaProducerFactory<>(props);
     }
+    @Bean
+    public ProducerFactory<String, String> producerStringFactory() {
+        Map<String, Object> props = commonProducerProps();
+        return new DefaultKafkaProducerFactory<>(props);
+    }
 
     @Bean
     public KafkaTemplate<String, AccountDto> accountKafkaTemplate(@Qualifier("producerAccountFactory") ProducerFactory<String, AccountDto> producerFactory) {
@@ -174,6 +179,11 @@ public class KafkaConfig {
 
     @Bean
     public KafkaTemplate<String, Message<DataSourceErrorLogDto>> dataSourceErrorLogKafkaTemplate(@Qualifier("producerDataSourceErrorLogFactory") ProducerFactory<String, Message<DataSourceErrorLogDto>> producerFactory) {
+        return new KafkaTemplate<>(producerFactory);
+    }
+
+    @Bean
+    public KafkaTemplate<String, String> defaultKafkaTemplate(@Qualifier("producerStringFactory") ProducerFactory<String, String> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 

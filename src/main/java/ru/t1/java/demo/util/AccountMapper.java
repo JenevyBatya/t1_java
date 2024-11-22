@@ -7,6 +7,7 @@ public class AccountMapper {
 
     public static Account toEntity(AccountDto dto) {
         return Account.builder()
+                .clientId(dto.getClientId())
                 .type(dto.getType())
                 .balance(dto.getBalance())
                 .status(dto.getStatus())
@@ -16,6 +17,7 @@ public class AccountMapper {
 
     public static AccountDto toDto(Account entity) {
         return AccountDto.builder()
+                .clientId(entity.getClientId())
                 .id(entity.getId())
                 .type(entity.getType())
                 .balance(entity.getBalance())
