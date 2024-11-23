@@ -25,6 +25,7 @@ t1:
     consumer:
       group-id-account: t1-demo-account
       group-id-transaction: t1-demo-transaction
+      group-id-transaction-result: t1-demo-transaction-result
 
       max.poll.records: 10
     producer:
@@ -34,4 +35,4 @@ t1:
       client_id_registered: t1_demo_client_registered
       client_transactions: t1_demo_client_transactions
     listener:
-      poll-timeout: 1000
+      poll-timeout: 100000

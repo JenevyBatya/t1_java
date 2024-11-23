@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.t1.java.demo.aop.LogDataSourceError;
 import ru.t1.java.demo.aop.Metric;
 import ru.t1.java.demo.dto.AccountDto;
+import ru.t1.java.demo.dto.ProcessedTransactionInfo;
 import ru.t1.java.demo.dto.TransactionDto;
 import ru.t1.java.demo.dto.TransactionInfoDto;
 import ru.t1.java.demo.kafka.KafkaProducer;
@@ -78,8 +79,9 @@ public class TransactionServiceImpl implements TransactionService {
             AccountDto accountDto = accountService.findById(transactionDto.getAccountId());
             if (accountDto.getStatus().equals(AccountStatus.OPEN)) {
                 transactionDto.setStatus(TransactionStatus.REQUESTED);
-                accountService.updateBalance(transactionDto, accountDto);
-                sendTransactionalInfo(accountDto, transactionDto);
+                TransactionDto savedTransaction = save(transactionDto);
+                accountService.updateBalance(savedTransaction, accountDto);
+                sendTransactionalInfo(accountDto, savedTransaction);
 //            }
 
             }
@@ -107,5 +109,34 @@ public class TransactionServiceImpl implements TransactionService {
                 accountDto.getBalance());
         kafkaProducer.sendTo("t1_demo_transaction_accept", infoDto);
 
+    }
+
+    public void processResult(ProcessedTransactionInfo info) {
+        switch (info.getStatus()) {
+            case ACCECPTED -> processAccepted(info);
+            case BLOCKED -> processBlocked(info);
+            case REJECTED -> processRejected(info);
+        }
+    }
+
+    private void processBlocked(ProcessedTransactionInfo info) {
+        TransactionDto transactionDto = findById(info.getTransactionId());
+        transactionDto.setStatus(TransactionStatus.BLOCKED);
+        save(transactionDto);
+        accountService.cancelTransactionUpdate(transactionDto);
+        accountService.updateFrozenAmount(transactionDto);
+    }
+
+    private void processAccepted(ProcessedTransactionInfo info) {
+        TransactionDto transactionDto = findById(info.getTransactionId());
+        transactionDto.setStatus(TransactionStatus.ACCECPTED);
+        save(transactionDto);
+    }
+
+    private void processRejected(ProcessedTransactionInfo info) {
+        TransactionDto transactionDto = findById(info.getTransactionId());
+        transactionDto.setStatus(TransactionStatus.REJECTED);
+        save(transactionDto);
+        accountService.cancelTransactionUpdate(transactionDto);
     }
 }

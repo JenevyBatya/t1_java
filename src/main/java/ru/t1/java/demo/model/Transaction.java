@@ -26,6 +26,7 @@ public class Transaction extends AbstractPersistable<Long> {
     private LocalDateTime time;
 
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private TransactionStatus status;
 
 }

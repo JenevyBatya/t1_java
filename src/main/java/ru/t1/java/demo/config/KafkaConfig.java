@@ -36,6 +36,8 @@ public class KafkaConfig {
     private String groupIdAccount;
     @Value("${t1.kafka.consumer.group-id-transaction}")
     private String groupIdTransaction;
+    @Value("${t1.kafka.consumer.group-id-transaction-result}")
+    private String groupIdTransactionResult;
     @Value("${t1.kafka.bootstrap-servers}")
     private String servers;
     @Value("${t1.kafka.session.timeout.ms:15000}")
@@ -110,6 +112,20 @@ public class KafkaConfig {
     @Bean
     ConcurrentKafkaListenerContainerFactory<String, Message<DataSourceErrorLogDto>> kafkaDataSourceErrorLogContainerFactory(@Qualifier("consumerDataSourceErrorLogFactory") ConsumerFactory<String, Message<DataSourceErrorLogDto>> consumerFactory) {
         ConcurrentKafkaListenerContainerFactory<String, Message<DataSourceErrorLogDto>> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factoryBuilder(consumerFactory, factory);
+        return factory;
+    }
+
+    @Bean
+    @Qualifier("consumerTransactionResultFactory")
+    public ConsumerFactory<String, String> consumerTransactionResultFactory() {
+        Map<String, Object> props = commonConsumerProps(groupIdTransactionResult, "java.lang.String");
+        return commonConsumerFactory(props);
+    }
+
+    @Bean
+    ConcurrentKafkaListenerContainerFactory<String, String> kafkaTransactionResultFactory(@Qualifier("consumerTransactionResultFactory") ConsumerFactory<String, String> consumerFactory) {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factoryBuilder(consumerFactory, factory);
         return factory;
     }

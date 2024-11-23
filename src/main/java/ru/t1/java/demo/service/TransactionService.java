@@ -1,6 +1,7 @@
 package ru.t1.java.demo.service;
 
 import ru.t1.java.demo.aop.Metric;
+import ru.t1.java.demo.dto.ProcessedTransactionInfo;
 import ru.t1.java.demo.dto.TransactionDto;
 import ru.t1.java.demo.model.Transaction;
 
@@ -22,4 +23,5 @@ public interface TransactionService {
 //    @Metric(1000)
 //    void registerTransactions(TransactionDto transactionDto);
     void sendTransaction(TransactionDto transactionDto);
+    public void processResult(ProcessedTransactionInfo info);
 }

@@ -14,6 +14,7 @@ import ru.t1.java.demo.service.AccountService;
 import ru.t1.java.demo.service.ClientService;
 import ru.t1.java.demo.service.TransactionService;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ public class DataGenerator {
     public void generateData() {
         List<AccountDto> accounts = new ArrayList<>();
         List<ClientDto> clients = clientsRegistration();
-        for (ClientDto client : clients){
+        for (ClientDto client : clients) {
             for (int i = 0; i <= 3; i++) {
                 AccountDto accountDto = AccountDto.builder()
                         .clientId(client.getId())
@@ -52,16 +53,19 @@ public class DataGenerator {
                 TransactionDto transactionDto = TransactionDto.builder()
                         .accountId(dto.getId())
                         .amount(faker.number().randomDouble(2, 1, 1000))
-                        .time(faker.date().past(10, TimeUnit.DAYS).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+//                        .time(faker.date().past(10, TimeUnit.DAYS).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+                        .time(LocalDateTime.now())
                         .status(TransactionStatus.ACCECPTED)
                         .build();
                 System.out.println();
+
                 transactionService.sendTransaction(transactionDto);
             }
         }
 
     }
-    private List<ClientDto> clientsRegistration(){
+
+    private List<ClientDto> clientsRegistration() {
         String[] firsts = {"Joshua", "Carl", "Jojo"};
         String[] middles = {"Boba", "Choiks", "Tarantino"};
         String[] lasts = {"Pit", "Poppy", "Mao"};

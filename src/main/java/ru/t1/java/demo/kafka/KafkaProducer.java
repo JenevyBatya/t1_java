@@ -29,7 +29,7 @@ public class KafkaProducer {
             } else if (payload instanceof TransactionDto) {
                 templateTransaction.send(topic, UUID.randomUUID().toString(), (TransactionDto) payload).get();
             } else {
-                template.send(topic, UUID.randomUUID().toString(), ParserJson.toJson(payload));
+                template.send(topic, UUID.randomUUID().toString(), ParserJson.toJson(payload)).get();
 //                throw new IllegalArgumentException("Unsupported payload type: " + payload.getClass().getName());
             }
 

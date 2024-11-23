@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.t1.java.demo.aop.LogDataSourceError;
 import ru.t1.java.demo.aop.Metric;
 import ru.t1.java.demo.dto.AccountDto;
+import ru.t1.java.demo.dto.ProcessedTransactionInfo;
 import ru.t1.java.demo.dto.TransactionDto;
 import ru.t1.java.demo.kafka.KafkaProducer;
 import ru.t1.java.demo.model.Account;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final KafkaProducer kafkaProducer;
+
     public List<AccountDto> findAll() {
         List<Account> accounts = accountRepository.findAll();
 
@@ -29,31 +31,33 @@ public class AccountServiceImpl implements AccountService {
                 .map(AccountMapper::toDto)
                 .collect(Collectors.toList());
     }
-   
+
     public void registerAccount(AccountDto dto) {
         kafkaProducer.sendTo("t1_demo_accounts", dto);
     }
 
-   
+
     public void registerFromDataGenerator(AccountDto accountDto) {
 
     }
+
     @Metric(1000)
     public AccountDto save(AccountDto dto) {
         Account account = accountRepository.save(AccountMapper.toEntity(dto));
 //        kafkaProducer.sendTo("t1_demo_accounts", dto);
         return AccountMapper.toDto(account);
     }
-   
+
     public AccountDto findById(Long id) {
         Account account = accountRepository.findById(id).orElse(null);
         return AccountMapper.toDto(account);
     }
 
-   
+
     public void deleteById(Long id) {
         accountRepository.deleteById(id);
     }
+
     @Metric(1000)
     public List<AccountDto> saveAccounts(List<AccountDto> accounts) {
         List<AccountDto> savedAccounts = new ArrayList<>();
@@ -63,8 +67,21 @@ public class AccountServiceImpl implements AccountService {
         }
         return savedAccounts;
     }
-    public AccountDto updateBalance(TransactionDto transactionDto, AccountDto accountDto){
+
+    public AccountDto updateBalance(TransactionDto transactionDto, AccountDto accountDto) {
         accountDto.setBalance(accountDto.getBalance() + transactionDto.getAmount());
-        return  save(accountDto);
+        return save(accountDto);
+    }
+
+    public AccountDto cancelTransactionUpdate(TransactionDto transactionDto) {
+        AccountDto accountDto = findById(transactionDto.getAccountId());
+        accountDto.setBalance(accountDto.getBalance() - transactionDto.getAmount());
+        return save(accountDto);
+    }
+
+    public AccountDto updateFrozenAmount(TransactionDto transactionDto) {
+        AccountDto accountDto = findById(transactionDto.getAccountId());
+        accountDto.setBalance(accountDto.getFrozenAmount() + transactionDto.getAmount());
+        return save(accountDto);
     }
 }
