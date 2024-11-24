@@ -16,8 +16,6 @@ public interface AccountService {
     void deleteById(Long id);
 
      List<AccountDto> saveAccounts(List<AccountDto> accounts);
-     void registerAccount(AccountDto accountDto);
-     void registerFromDataGenerator(AccountDto accountDto);
     public AccountDto updateBalance(TransactionDto transactionDto, AccountDto accountDto);
     public AccountDto cancelTransactionUpdate(TransactionDto transactionDto);
     public AccountDto updateFrozenAmount(TransactionDto transactionDto);

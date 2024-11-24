@@ -30,7 +30,6 @@ public class KafkaProducer {
                 templateTransaction.send(topic, UUID.randomUUID().toString(), (TransactionDto) payload).get();
             } else {
                 template.send(topic, UUID.randomUUID().toString(), ParserJson.toJson(payload)).get();
-//                throw new IllegalArgumentException("Unsupported payload type: " + payload.getClass().getName());
             }
 
         } catch (Exception ex) {
@@ -46,15 +45,6 @@ public class KafkaProducer {
         }
 
         log.info("Message sent to topic {} with payload {}", topic, payload);
-    }
-
-
-    private KafkaTemplate<String, ?> getTemplate(Object o) {
-        if (o instanceof AccountDto) {
-            return templateAccount;
-        } else if (o instanceof TransactionDto) {
-            return templateTransaction;
-        } else return null;
     }
 
 
