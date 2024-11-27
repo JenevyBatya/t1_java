@@ -36,6 +36,8 @@ public class KafkaConfig {
     private String groupIdAccount;
     @Value("${t1.kafka.consumer.group-id-transaction}")
     private String groupIdTransaction;
+    @Value("${t1.kafka.consumer.group-id-transaction-result}")
+    private String groupIdTransactionResult;
     @Value("${t1.kafka.bootstrap-servers}")
     private String servers;
     @Value("${t1.kafka.session.timeout.ms:15000}")
@@ -60,22 +62,23 @@ public class KafkaConfig {
         props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, maxPartitionFetchBytes);
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
         props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, maxPollIntervalsMs);
-//        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, Boolean.FALSE);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, MessageDeserializer.class.getName());
         props.put(ErrorHandlingDeserializer.KEY_DESERIALIZER_CLASS, MessageDeserializer.class);
         return props;
     }
 
+    private <T> ConsumerFactory<String, T> commonConsumerFactory(Map<String, Object> props) {
+        DefaultKafkaConsumerFactory<String, T> factory = new DefaultKafkaConsumerFactory<>(props);
+        factory.setKeyDeserializer(new StringDeserializer());
+        return factory;
+    }
+
     @Bean
     @Qualifier("consumerAccountFactory")
     public ConsumerFactory<String, AccountDto> consumerAccountFactory() {
-
         Map<String, Object> props = commonConsumerProps(groupIdAccount, "ru.t1.java.demo.dto.AccountDto");
-        DefaultKafkaConsumerFactory<String, AccountDto> factory = new DefaultKafkaConsumerFactory<String, AccountDto>(props);
-        factory.setKeyDeserializer(new StringDeserializer());
-
-        return factory;
+        return commonConsumerFactory(props);
     }
 
     @Bean
@@ -89,11 +92,7 @@ public class KafkaConfig {
     @Qualifier("consumerTransactionFactory")
     public ConsumerFactory<String, TransactionDto> consumerTransactionFactory() {
         Map<String, Object> props = commonConsumerProps(groupIdTransaction, "ru.t1.java.demo.dto.TransactionDto");
-
-        DefaultKafkaConsumerFactory<String, TransactionDto> factory = new DefaultKafkaConsumerFactory<String, TransactionDto>(props);
-        factory.setKeyDeserializer(new StringDeserializer());
-
-        return factory;
+        return commonConsumerFactory(props);
     }
 
     @Bean
@@ -106,17 +105,27 @@ public class KafkaConfig {
     @Bean
     @Qualifier("consumerDataSourceErrorLogFactory")
     public ConsumerFactory<String, Message<DataSourceErrorLogDto>> consumerDataSourceErrorLogFactory() {
-
         Map<String, Object> props = commonConsumerProps(groupIdAccount, "ru.t1.java.demo.dto.Message<DataSourceErrorLogDto>");
-        DefaultKafkaConsumerFactory<String, Message<DataSourceErrorLogDto>> factory = new DefaultKafkaConsumerFactory<String, Message<DataSourceErrorLogDto>>(props);
-        factory.setKeyDeserializer(new StringDeserializer());
-
-        return factory;
+        return commonConsumerFactory(props);
     }
 
     @Bean
     ConcurrentKafkaListenerContainerFactory<String, Message<DataSourceErrorLogDto>> kafkaDataSourceErrorLogContainerFactory(@Qualifier("consumerDataSourceErrorLogFactory") ConsumerFactory<String, Message<DataSourceErrorLogDto>> consumerFactory) {
         ConcurrentKafkaListenerContainerFactory<String, Message<DataSourceErrorLogDto>> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factoryBuilder(consumerFactory, factory);
+        return factory;
+    }
+
+    @Bean
+    @Qualifier("consumerTransactionResultFactory")
+    public ConsumerFactory<String, String> consumerTransactionResultFactory() {
+        Map<String, Object> props = commonConsumerProps(groupIdTransactionResult, "java.lang.String");
+        return commonConsumerFactory(props);
+    }
+
+    @Bean
+    ConcurrentKafkaListenerContainerFactory<String, String> kafkaTransactionResultFactory(@Qualifier("consumerTransactionResultFactory") ConsumerFactory<String, String> consumerFactory) {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factoryBuilder(consumerFactory, factory);
         return factory;
     }
@@ -140,7 +149,7 @@ public class KafkaConfig {
         return handler;
     }
 
-    private Map<String, Object> commonProducerProps(){
+    private Map<String, Object> commonProducerProps() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, servers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -150,6 +159,7 @@ public class KafkaConfig {
         props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, false);
         return props;
     }
+
     @Bean
     public ProducerFactory<String, AccountDto> producerAccountFactory() {
         Map<String, Object> props = commonProducerProps();
@@ -161,8 +171,14 @@ public class KafkaConfig {
         Map<String, Object> props = commonProducerProps();
         return new DefaultKafkaProducerFactory<>(props);
     }
+
     @Bean
     public ProducerFactory<String, Message<DataSourceErrorLogDto>> producerDataSourceErrorLogFactory() {
+        Map<String, Object> props = commonProducerProps();
+        return new DefaultKafkaProducerFactory<>(props);
+    }
+    @Bean
+    public ProducerFactory<String, String> producerStringFactory() {
         Map<String, Object> props = commonProducerProps();
         return new DefaultKafkaProducerFactory<>(props);
     }
@@ -179,6 +195,11 @@ public class KafkaConfig {
 
     @Bean
     public KafkaTemplate<String, Message<DataSourceErrorLogDto>> dataSourceErrorLogKafkaTemplate(@Qualifier("producerDataSourceErrorLogFactory") ProducerFactory<String, Message<DataSourceErrorLogDto>> producerFactory) {
+        return new KafkaTemplate<>(producerFactory);
+    }
+
+    @Bean
+    public KafkaTemplate<String, String> defaultKafkaTemplate(@Qualifier("producerStringFactory") ProducerFactory<String, String> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 

@@ -32,7 +32,7 @@ public class KafkaTransactionConsumer {
 
         try {
 
-            transactionService.saveTransactions(messageList);
+            transactionService.registerTransaction(messageList);
         } finally {
             ack.acknowledge();
         }

@@ -21,6 +21,7 @@ import java.util.UUID;
 @Aspect
 @Component
 @Slf4j
+@LogDataSourceError
 public class MetricAspect {
 
     private final KafkaTemplate<String, Message<DataSourceErrorLogDto>> kafkaTemplate;
@@ -29,9 +30,7 @@ public class MetricAspect {
     @Around("@annotation(metric)")
     public Object measureExecutionTime(ProceedingJoinPoint joinPoint, Metric metric) throws Throwable {
         long startTime = System.currentTimeMillis();
-
-        Object result = joinPoint.proceed();
-
+        Object result = joinPoint.proceed(); //теперь этим займется аспект по логам ошибок
         long executionTime = System.currentTimeMillis() - startTime;
         if (executionTime > metric.value()) {
             DataSourceErrorLogDto dto = null;

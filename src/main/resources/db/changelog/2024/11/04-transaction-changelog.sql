@@ -10,6 +10,7 @@ CREATE TABLE transaction
     account_id       BIGINT,
     amount           DECIMAL(15, 2),
     time TIMESTAMP,
+    status VARCHAR(255),
     CONSTRAINT pk_transaction PRIMARY KEY (id),
     CONSTRAINT fk_transaction_account FOREIGN KEY (account_id) REFERENCES account (id) ON DELETE CASCADE
 );
